@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io/ioutil"
 	"path/filepath"
+	"strings"
 
 	"github.com/suapapa/go_sass"
 
@@ -83,7 +84,7 @@ func (s *SassStreamer) Stream(fi *muta.FileInfo, chunk []byte) (
 				"File '%s/%s' is being ignored. .sass syntax "+
 					"is not currently supported", fi.Path, fi.Name)
 		case ".scss":
-			// Nothing needed here
+			fi.Name = strings.TrimSuffix(fi.Name, ".scss") + ".css"
 		default:
 			s.ignoreFi = fi
 		}

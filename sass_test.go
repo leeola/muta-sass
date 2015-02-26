@@ -2,6 +2,7 @@ package sass
 
 import (
 	"bytes"
+	"path/filepath"
 	"testing"
 
 	"github.com/leeola/muta"
@@ -116,5 +117,11 @@ body {
 		So(err, ShouldBeNil)
 		So(fi, ShouldEqual, oFi)
 		So(chunk, ShouldBeNil)
+	})
+
+	Convey("Should change the file extension to css", t, func() {
+		s := NewSassStreamer(Options{}).Stream
+		fi, _, _ := s(muta.NewFileInfo("foo.scss"), nil)
+		So(filepath.Ext(fi.Name), ShouldEqual, ".css")
 	})
 }
