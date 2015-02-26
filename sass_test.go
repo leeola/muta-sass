@@ -15,6 +15,8 @@ func init() {
 }
 
 func TestSass(t *testing.T) {
+	tmpDir := filepath.Join("_test", "fixtures")
+
 	Convey("Should not buffer files that aren't sass", t, func() {
 		s := NewSassStreamer(Options{}).Stream
 		oFi := muta.NewFileInfo("foo.bar")
@@ -123,5 +125,26 @@ body {
 		s := NewSassStreamer(Options{}).Stream
 		fi, _, _ := s(muta.NewFileInfo("foo.scss"), nil)
 		So(filepath.Ext(fi.Name), ShouldEqual, ".css")
+	})
+
+	Convey("Should allow sass to import relative files", t, func() {
+		s := NewSassStreamer(Options{}).Stream
+		// Note that these two files don't exist, but that doesn't
+		// matter because this plugin doesn't load files. We're using
+		// the path to ensure imports in tmpDir work
+		oFi1 := muta.NewFileInfo(filepath.Join(tmpDir, "foo.scss"))
+		oFi2 := muta.NewFileInfo(filepath.Join(tmpDir, "bar.scss"))
+		s(oFi1, []byte(`
+@import "style";
+`))
+		_, _, err := s(oFi1, nil)
+		So(err, ShouldBeNil)
+		// Now ensure that bad imports are properly returning errors
+		// (If they are not, then this test may not be correct)
+		s(oFi2, []byte(`
+@import "thisdoesntexist";
+`))
+		_, _, err = s(oFi2, nil)
+		So(err, ShouldNotBeNil)
 	})
 }

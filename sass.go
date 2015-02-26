@@ -98,6 +98,10 @@ func (s *SassStreamer) Stream(fi *muta.FileInfo, chunk []byte) (
 		}
 		source, _ := ioutil.ReadAll(&s.buffer)
 
+		// We're setting the include paths for each file, so that
+		// they can import relatively from their local directory
+		s.compiler.IncludePaths = []string{fi.OriginalPath}
+
 		var compiled string
 		var err error
 		compiled, err = s.compiler.Compile(string(source))
